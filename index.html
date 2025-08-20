@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>D&D Tarot Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e0033 0%, #220044 50%, #330066 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-weight: bold;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-selector {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 2px solid #8b7cc8;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .orientation-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-upright {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 6px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-upright:hover {
+            background: linear-gradient(135deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-upright.active {
+            background: linear-gradient(135deg, #2e7031, #45a049);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .btn-reversed {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+            box-shadow: 0 4px 6px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-reversed:hover {
+            background: linear-gradient(135deg, #da190b, #f44336);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(244, 67, 54, 0.4);
+        }
+
+        .btn-reversed.active {
+            background: linear-gradient(135deg, #a01409, #da190b);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .random-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(156, 39, 176, 0.3);
+        }
+
+        .random-btn:hover {
+            background: linear-gradient(135deg, #7B1FA2, #9C27B0);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(156, 39, 176, 0.4);
+        }
+
+        .card-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-height: 300px;
+        }
+
+        .card-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .card-orientation {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .orientation-upright {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+            color: #81C784;
+        }
+
+        .orientation-reversed {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid #f44336;
+            color: #EF5350;
+        }
+
+        .card-effect {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .effect-label {
+            font-size: 12px;
+            color: #b8b8b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .effect-text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #fff;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #b8b8b8;
+            font-style: italic;
+        }
+
+        .sparkle {
+            display: inline-block;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .card-description {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #d8d8d8;
+            font-style: italic;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .card-description::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .card-description::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .card-description::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.5);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="sparkle">✨</span> D&D Tarot Tool <span class="sparkle">✨</span></h1>
+        
+        <div class="controls">
+            <select class="card-selector" id="cardSelector">
+                <option value="">Select a Card...</option>
+            </select>
+            
+            <div class="orientation-buttons">
+                <button class="btn btn-upright" id="uprightBtn">Upright</button>
+                <button class="btn btn-reversed" id="reversedBtn">Reversed</button>
+            </div>
+            
+            <button class="random-btn" id="randomBtn">🎲 Draw Random Card</button>
+        </div>
+        
+        <div class="card-display" id="cardDisplay">
+            <div class="welcome-message">
+                <p>Select a card and choose its orientation to reveal its effects...</p>
+                <p style="margin-top: 20px; font-size: 24px;">🔮</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cardsData = [
+            {
+                "name": "0 The Fool",
+                "description": "Beginnings, freedom, innocence, originality, adventure, idealism, spontaneity\\r\\nJoyful, exuberant first steps\\r\\nSmall bag - cares nothing for possible dangers/obstacles\\r\\nClose to the edge, but unaware/naïve\\r\\nDog at heels barking in warning - if he does not become aware of his surroundings soon, he may never see all the adventures he dreams of encountering\\r\\n0 - number of infinite potential\\r\\nBlank slate, no clear personality\\r\\nAnything can happen\\r\\nEvery day is a new adventure\\r\\nCall to take a risk/leap of faith\\r\\nAwe and curiosity",
+                "upright": "Your next spell has double range/area and affects +1 target, but you automatically trigger wild magic surge",
+                "reversed": "Your next spell targets a random valid target within range"
+            },
+            {
+                "name": "I The Magician",
+                "description": "Willpower, desire, creation, manifestation, resourcefulness, skill, ability, concentration\\r\\nOne hand to the sky, one to the ground - \\\"as above, so below\\\"\\r\\nWields all four suits, connects all elements\\r\\nPure willpower\\r\\nWith power of elements he takes the potential of the fool and molds it into being\\r\\nYou are powerful, create your inner world and the outer world will follow\\r\\nNeed to tap into full potential\\r\\nDon't hold back\\r\\nCreate your own world or someone else will do it for you",
+                "upright": "Cast without expending spell slot (spell chosen is base level, so a fireball would be a free level 3 spell, I should probably cap this at a level, can discuss more when we get there)",
+                "reversed": "Can't cast a spell this turn, considering she doesn't have a weapon ever this is essentially just deleting her action for the turn"
+            },
+            {
+                "name": "II The High Priestess",
+                "description": "Unconscious, intuition, mystery, spirituality, higher power, inner voice\\r\\nGuardian of the unconscious and beckons the traveller to the world within\\r\\nComplete grasp on emotions, ambitious\\r\\nInner knowledge, listen to your intuition rather than prioritising your intellect and conscious mind\\r\\nDivine feminine - understands and holds answers to the deep unknowns; religion, self and nature.\\r\\nBeginning to open her spirituality\\r\\nNeed for meditation, prayer and new spiritual work\\r\\nSearch for answers within yourself",
+                "upright": "Your next spell ignores cover and concealment, you know exact location of all hidden creatures within 60ft",
+                "reversed": "You cannot use your reaction until end of your next turn"
+            },
+            {
+                "name": "III The Empress",
+                "description": "Motherhood, fertility, nature, divine feminine, sensuality, nurturing, creativity, beauty, abundance\\r\\nRepresents the Earth Mother\\r\\nComplete love, harmony, fertility and luxury\\r\\nBrings abundance and blessings\\r\\nShows deep connection to femininity (fertility, expression, creativity, nurturing)\\r\\nConnect with beauty and bring happiness to your life\\r\\nBe kind to yourself, take care of yourself\\r\\nBirth of new idea, business or project\\r\\nGood fortune\\r\\nBring forth your ideas and devote yourself to accomplishing them\\r\\nYour ideas will be successful and well taken care of",
+                "upright": "You and all allies within 30ft gain temporary hit points equal to your Charisma modifier + proficiency bonus",
+                "reversed": "You take 1d4 damage at the start of each turn until you heal someone or take a short rest "
+            },
+            {
+                "name": "IV The Emperor",
+                "description": "Stability, structure, protection, authority, control, practicality, focus, discipline, fatherliness\\r\\nStoic ruler figure\\r\\nRams heads - Aries\\r\\nSceptre - reign/right to rule, orb - symbol of kingdom he watches over\\r\\nLong beard - vast experience\\r\\nStrategic thinker\\r\\nPaternal - gives structure, creates rules and systems, imparts knowledge\\r\\nHonour and discipline\\r\\nActs rationally IAW greater good\\r\\nRepresents a chance to grow in terms of your goals\\r\\nSuccessful future as long as you pursue your goals methodically and strategically\\r\\nYou may be put in charge of something important, called to act with wisdom, order and a clear decisive mind",
+                "upright": "You can command one ally within 60ft to move up to their speed and take one action as a reaction",
+                "reversed": "You cannot give direction - no Help action, no Guidance cantrip, no beneficial targeting of allies until end of next turn"
+            },
+            {
+                "name": "V The Hierophant",
+                "description": "Tradition, social groups, conventionality, conformity, education, knowledge, beliefs\\r\\nReligious figure in a formal environment\\r\\nRight hand raised in blessing, triple cross - pope (the Father, the Son, the Holy Spirit)\\r\\nTwo acolytes - transfer of sacred knowledge\\r\\nMasculine counterpart of the High Priestess - rather than following inner self, follow outer world (already established)\\r\\nEmbrace the conventional, follow well established processes, orthodox approach\\r\\nAdapt to certain beliefs and systems, follow social structures",
+                "upright": "All allies within 30ft gain advantage on saving throws against being charmed or frightened until end of encounter",
+                "reversed": "You can only cast this round with a spell that has only a verbal OR somatic component, not both"
+            },
+            {
+                "name": "VI The Lovers",
+                "description": "Love, unions, partnerships, relationships, choices, romance, balance, unity\\r\\nHarmony, attractiveness, perfection in a relationship\\r\\nTrust and unity gives confidence and strength, empowering each party\\r\\nChoose what is important in your life and what is not - follows on from Hierophant (develop your own beliefs/values)\\r\\nBe true to yourself to be true and authentic to others",
+                "upright": "Choose one ally - you both gain +2 AC and advantage on saves until end of your next turn",
+                "reversed": "You and one random ally within 30ft both take 1d6 psychic damage"
+            },
+            {
+                "name": "VII The Chariot",
+                "description": "Success, ambition, determination, willpower, control, self-discipline, focus\\r\\nBlack and white sphinxes - opposing forces that need to be controlled\\r\\nGuide sphinxes to work together to reach a destination\\r\\nOvercoming challenges, gaining victory through control of your surroundings\\r\\nMaintain focus, confidence and determination\\r\\nPursue plans with a structured and ordered approach\\r\\nAggression may be used to help you take charge, but it may need to be reined in.",
+                "upright": "You gain advantage on concentration saves and cannot be moved against your will until end of encounter",
+                "reversed": "You must move in a random direction (roll d8) at the start of your turn until end of your next turn"
+            },
+            {
+                "name": "VIII Strength",
+                "description": "Courage, bravery, confidence, compassion, self-confidence, inner power\\r\\nWoman gracefully controlling lion, calm and collected\\r\\nMaintain control and discipline in times of great adversity\\r\\nGentle control - love and compassion\\r\\nInner strength and fortitude during times of danger and distress\\r\\nYou are compassionate and always have time for others, even at your own expense\\r\\nYou are patient and likely to accomplish what you put your mind to\\r\\nYou are resilient and fearless\\r\\nYour compassion will be rewarded with stability in your life",
+                "upright": "Your next spell deals maximum damage and you gain temporary hit points equal to damage dealt (will negotiate for half if necessary lol)",
+                "reversed": "You have vulnerability to the next damage you take"
+            },
+            {
+                "name": "IX The Hermit",
+                "description": "Self-reflection, introspection, contemplation, withdrawal, solitude, search for self\\r\\nWise sage on mountain peak\\r\\nLantern - his wisdom illuminates path\\r\\nCompleted journey, reached pinnacle of spiritual enlightenment\\r\\nSpent time to know himself better, prepared for next phase\\r\\nNow acts as guiding light for others\\r\\nConsult inner wisdom, truth within yourself, listen to inner voice\\r\\nSeparation from others to discover important answers from within",
+                "upright": "Gain advantage on all Wisdom and Intelligence checks until end of encounter, but you cannot target allies with beneficial spells this turn",
+                "reversed": "You are isolated from your allies - cannot benefit from or provide any buff effects until end of your next turn"
+            },
+            {
+                "name": "X The Wheel of Fortune",
+                "description": "Luck, destiny, karma, turning points, life cycles, inevitable fate, critical moment\\r\\nWeaving of the Fates, web of life\\r\\nReminder that the universe is random\\r\\nDestiny, unexpected income, surprise\\r\\nThings are shaping up for the better\\r\\nEmbrace change and go with the flow\\r\\nIf you're on a low, things will get better\\r\\nMaintain positive and optimistic attitude during change",
+                "upright": "Roll a d20 - 11+ your next spell is cast at 2 levels higher without using higher slot, 10 or lower the DM chooses a random beneficial effect",
+                "reversed": "Roll a d20 - on 10 or lower, you trigger a wild magic surge immediately"
+            },
+            {
+                "name": "XI Justice",
+                "description": "Justice, fairness, truth, law, cause and effect, accountability\\r\\nBalanced scales - intuition balanced by logic\\r\\nSword - decisive action that Justice brings\\r\\nSquare on crown - clarity of thought\\r\\nReminder that fairness comes from the law of cause and effect\\r\\nYour actions always have consequences\\r\\nSeek justice and truth, and be ready to take responsibility\\r\\nBe fair and understanding",
+                "upright": "Your next spell that requires a save automatically succeeds, but you take half the damage/effect yourself",
+                "reversed": "You must make a Wisdom save (DC 15) or be compelled to attack the nearest creature (friend or foe) on your next turn"
+            },
+            {
+                "name": "XII The Hanged Man",
+                "description": "Waiting, sacrifice, release, martyrdom, suspension, contemplation, letting go\\r\\nHung upside down - different perspective\\r\\nCalm and serene, chosen his position\\r\\nTree of Life - connection between heaven, earth and underworld\\r\\nPatience, self-sacrifice for greater good/personal growth\\r\\nStep back, take new approach\\r\\nLet go of old mental models and behavioural patterns\\r\\nSacrifice now for future benefit",
+                "upright": "Skip your next turn entirely, but gain 2 actions on the following turn",
+                "reversed": "You're stuck in stasis - lose all movement speed until end of your next turn, but gain +4 AC"
+            },
+            {
+                "name": "XIII Death",
+                "description": "Endings, beginnings, transition, transformation, change, release\\r\\nDeath comes for all (king, clergy, woman, child)\\r\\nWhite rose - purity, cleansing\\r\\nBoat on river - mythological boats that carry dead to afterlife\\r\\nSun between towers - sun dies each night and is reborn each morning\\r\\nTransition, passage, change\\r\\nEnd of one phase, beginning of another\\r\\nLet go of past to embrace new opportunities",
+                "upright": "Choose one: Kill one enemy with 25 HP or less instantly, OR resurrect one fallen ally with 1 HP",
+                "reversed": "You drop to 1 HP but become immune to all damage until the start of your next turn"
+            },
+            {
+                "name": "XIV Temperance",
+                "description": "Balance, peace, patience, moderation, calm, tranquillity, harmony\\r\\nAngel with one foot on land, one in water - balance between material and emotional\\r\\nWater flowing between cups - flow and alchemy of life\\r\\nTriangle in square on robe - humanity (triangle) bound by earth and natural law (square)\\r\\nIris flowers - Greek goddess Iris links gods to humanity\\r\\nMiddle path, patience, staying calm\\r\\nBring balance to all aspects of life",
+                "upright": "You and all allies within 30ft heal for 2d4 HP and remove one condition",
+                "reversed": "All your spell damage is halved until end of encounter, but you gain resistance to all damage"
+            },
+            {
+                "name": "XV The Devil",
+                "description": "Bondage, addiction, sexuality, powerlessness, limitations, shadow self\\r\\nBaphomet - half man, half goat\\r\\nChained humans - but chains are loose, could escape if they wanted\\r\\nInverted pentagram - dark/occult\\r\\nFlames on tails - lust and desire\\r\\nFeel trapped but you hold the keys\\r\\nUnhealthy relationships, addiction, harmful impulses\\r\\nPowerlessness is illusion",
+                "upright": "Your next spell deals double damage but you take 1d6 necrotic damage that can't be reduced",
+                "reversed": "You are charmed by the nearest enemy until end of your next turn"
+            },
+            {
+                "name": "XVI The Tower",
+                "description": "Disaster, destruction, upheaval, trauma, sudden change, chaos, revelation, awakening\\r\\nTower struck by lightning, people falling\\r\\nBuilt on shaky foundations, false premises\\r\\nLightning - sudden flash of inspiration/insight\\r\\nCrown falling - overthrow of old ways of thinking\\r\\n22 flames - 12 zodiac signs, 10 points of Tree of Life\\r\\nDestruction of old forms necessary for new growth\\r\\nChaos and destruction, but also liberation from false structures",
+                "upright": "All creatures within 20ft (including you) take 3d6 thunder damage and are knocked prone",
+                "reversed": "Destroy all your temporary hit points and ongoing beneficial effects, but deal that amount as damage to nearest enemy"
+            },
+            {
+                "name": "XVII The Star",
+                "description": "Hope, spirituality, renewal, inspiration, serenity, healing\\r\\nNaked woman - vulnerability and purity\\r\\nPouring water - one on land (conscious), one in water (subconscious)\\r\\nSeven small stars - chakras\\r\\nOne large star - core essences\\r\\nBird on tree - sacred ibis of thought\\r\\nRenewal of spirit, healing\\r\\nTrust in universe\\r\\nCalm after storm",
+                "upright": "cast bardic inspiration as a bonus action",
+                "reversed": "disadvantage on your next attack roll or spell save DC"
+            },
+            {
+                "name": "XVIII The Moon",
+                "description": "Illusion, intuition, uncertainty, confusion, complexity, secrets, unconscious\\r\\nDog and wolf howling - tame and wild aspects of mind\\r\\nCrayfish from water - early stages of consciousness unfolding\\r\\nPath between towers - journey through unknown\\r\\nMoon controls tides - emotions\\r\\nThings not as they seem\\r\\nReliance on intuition\\r\\nFace illusions, anxieties, fears\\r\\nSubconscious affecting actions",
+                "upright": "All creatures within 60ft must make a Wisdom save or be frightened of you until end of your next turn",
+                "reversed": "You are frightened of all creatures you can see until end of your next turn"
+            },
+            {
+                "name": "XIX The Sun",
+                "description": "Joy, success, celebration, positivity, vitality, self-confidence, happiness\\r\\nChild on white horse - innocence and purity\\r\\nNaked - nothing to hide\\r\\nSunflowers - four suits, four elements\\r\\nWalled garden - protection but also ability to leave\\r\\nRed banner - celebration of life\\r\\nWarmth, success, radiance\\r\\nThings going your way\\r\\nVitality and confidence",
+                "upright": "All hostile creatures within 30ft take 2d4 radiant damage, all allies gain 1d4 temporary hit points ",
+                "reversed": "You are blinded by false optimism - advantage on your next attack but if you miss, you're stunned until end of next turn"
+            },
+            {
+                "name": "XX Judgement",
+                "description": "Reflection, reckoning, awakening, renewal, purpose, absolution\\r\\nArchangel Gabriel - God's messenger\\r\\nTrumpet call - announcement of Judgement Day\\r\\nPeople rising from graves - rebirth, absolution\\r\\nMountains - impossibility of avoiding judgement\\r\\nFinal reckoning, time to evaluate\\r\\nAwakening to new purpose\\r\\nAbsolution and new beginning\\r\\nHigher level of consciousness",
+                "upright": "Your next spell ignores resistances and immunities,",
+                "reversed": "You must repeat your last action, or lose your action entirely (stuck in old patterns)"
+            },
+            {
+                "name": "XXI The World",
+                "description": "Completion, achievement, fulfilment, success, closure, accomplishment\\r\\nDancing figure - both masculine and feminine\\r\\nWrapped in purple cloth - divinity\\r\\nWands - evolution and balance\\r\\nLaurel wreath - success and victory\\r\\nFour figures - four suits, four elements, four evangelists\\r\\nCompletion of cycle\\r\\nAchievement of major goal\\r\\nFulfilment and wholeness\\r\\nCelebration of journey",
+                "upright": "You gain an additional action for 1 minute (this is the ultimate achievement/completion effect!)",
+                "reversed": "You lose your turn completely - no action, bonus action, movement, or reaction until the start of your next turn"
+            }
+        ];
+
+        let currentCard = null;
+        let currentOrientation = null;
+
+        // Populate card selector
+        const cardSelector = document.getElementById('cardSelector');
+        cardsData.forEach(card => {
+            const option = document.createElement('option');
+            option.value = card.name;
+            option.textContent = card.name;
+            cardSelector.appendChild(option);
+        });
+
+        // Function to display card
+        function displayCard() {
+            if (!currentCard || !currentOrientation) return;
+
+            const cardDisplay = document.getElementById('cardDisplay');
+            const effect = currentOrientation === 'upright' ? currentCard.upright : currentCard.reversed;
+            const orientationClass = currentOrientation === 'upright' ? 'orientation-upright' : 'orientation-reversed';
+            
+            // Clean up description for display
+            const cleanDescription = currentCard.description.replace(/\\r\\n/g, '<br>').replace(/\\n/g, '<br>');
+            
+            cardDisplay.innerHTML = `
+                <div class="card-name">${currentCard.name}</div>
+                <div class="card-orientation ${orientationClass}">${currentOrientation}</div>
+                ${currentCard.description ? `<div class="card-description">${cleanDescription}</div>` : ''}
+                <div class="card-effect">
+                    <div class="effect-label">Effect (${currentOrientation}):</div>
+                    <div class="effect-text">${effect}</div>
+                </div>
+            `;
+        }
+
+        // Card selector change
+        cardSelector.addEventListener('change', (e) => {
+            const selectedCardName = e.target.value;
+            if (selectedCardName) {
+                currentCard = cardsData.find(card => card.name === selectedCardName);
+                if (currentOrientation) {
+                    displayCard();
+                }
+            }
+        });
+
+        // Upright button
+        document.getElementById('uprightBtn').addEventListener('click', () => {
+            if (!currentCard) {
+                alert('Please select a card first!');
+                return;
+            }
+            currentOrientation = 'upright';
+            document.getElementById('uprightBtn').classList.add('active');
+            document.getElementById('reversedBtn').classList.remove('active');
+            displayCard();
+        });
+
+        // Reversed button
+        document.getElementById('reversedBtn').addEventListener('click', () => {
+            if (!currentCard) {
+                alert('Please select a card first!');
+                return;
+            }
+            currentOrientation = 'reversed';
+            document.getElementById('reversedBtn').classList.add('active');
+            document.getElementById('uprightBtn').classList.remove('active');
+            displayCard();
+        });
+
+        // Random button
+        document.getElementById('randomBtn').addEventListener('click', () => {
+            // Select random card
+            const randomIndex = Math.floor(Math.random() * cardsData.length);
+            currentCard = cardsData[randomIndex];
+            
+            // Select random orientation
+            currentOrientation = Math.random() < 0.5 ? 'upright' : 'reversed';
+            
+            // Update UI
+            cardSelector.value = currentCard.name;
+            
+            // Update button states
+            if (currentOrientation === 'upright') {
+                document.getElementById('uprightBtn').classList.add('active');
+                document.getElementById('reversedBtn').classList.remove('active');
+            } else {
+                document.getElementById('reversedBtn').classList.add('active');
+                document.getElementById('uprightBtn').classList.remove('active');
+            }
+            
+            displayCard();
+        });
+    </script>
+</body>
+</html>
