@@ -55,6 +55,15 @@
             cursor: pointer;
         }
 
+        .card-selector optgroup {
+            font-weight: bold;
+            color: #220044;
+        }
+
+        .card-selector option {
+            padding: 5px;
+        }
+
         .orientation-buttons {
             display: flex;
             gap: 10px;
@@ -141,9 +150,32 @@
             font-size: 22px;
             font-weight: bold;
             color: #ffd700;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: center;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .card-type {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .type-major {
+            background: rgba(255, 215, 0, 0.3);
+            border: 1px solid #ffd700;
+            color: #ffd700;
+        }
+
+        .type-minor {
+            background: rgba(192, 192, 192, 0.3);
+            border: 1px solid #c0c0c0;
+            color: #c0c0c0;
         }
 
         .card-orientation {
@@ -154,6 +186,7 @@
             font-weight: bold;
             margin-bottom: 15px;
             text-transform: uppercase;
+            margin-left: 10px;
         }
 
         .orientation-upright {
@@ -233,6 +266,11 @@
             background: rgba(255, 215, 0, 0.5);
             border-radius: 3px;
         }
+
+        .suit-icon {
+            font-size: 14px;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -261,152 +299,624 @@
     </div>
 
     <script>
-        const cardsData = [
+        // Major Arcana Data
+        const majorArcana = [
             {
                 "name": "0 The Fool",
+                "type": "major",
                 "description": "Beginnings, freedom, innocence, originality, adventure, idealism, spontaneity\\r\\nJoyful, exuberant first steps\\r\\nSmall bag - cares nothing for possible dangers/obstacles\\r\\nClose to the edge, but unaware/naïve\\r\\nDog at heels barking in warning - if he does not become aware of his surroundings soon, he may never see all the adventures he dreams of encountering\\r\\n0 - number of infinite potential\\r\\nBlank slate, no clear personality\\r\\nAnything can happen\\r\\nEvery day is a new adventure\\r\\nCall to take a risk/leap of faith\\r\\nAwe and curiosity",
                 "upright": "Your next spell has double range/area and affects +1 target, but you automatically trigger wild magic surge",
                 "reversed": "Your next spell targets a random valid target within range"
             },
             {
                 "name": "I The Magician",
+                "type": "major",
                 "description": "Willpower, desire, creation, manifestation, resourcefulness, skill, ability, concentration\\r\\nOne hand to the sky, one to the ground - \\\"as above, so below\\\"\\r\\nWields all four suits, connects all elements\\r\\nPure willpower\\r\\nWith power of elements he takes the potential of the fool and molds it into being\\r\\nYou are powerful, create your inner world and the outer world will follow\\r\\nNeed to tap into full potential\\r\\nDon't hold back\\r\\nCreate your own world or someone else will do it for you",
                 "upright": "Cast without expending spell slot (spell chosen is base level, so a fireball would be a free level 3 spell, I should probably cap this at a level, can discuss more when we get there)",
                 "reversed": "Can't cast a spell this turn, considering she doesn't have a weapon ever this is essentially just deleting her action for the turn"
             },
             {
                 "name": "II The High Priestess",
+                "type": "major",
                 "description": "Unconscious, intuition, mystery, spirituality, higher power, inner voice\\r\\nGuardian of the unconscious and beckons the traveller to the world within\\r\\nComplete grasp on emotions, ambitious\\r\\nInner knowledge, listen to your intuition rather than prioritising your intellect and conscious mind\\r\\nDivine feminine - understands and holds answers to the deep unknowns; religion, self and nature.\\r\\nBeginning to open her spirituality\\r\\nNeed for meditation, prayer and new spiritual work\\r\\nSearch for answers within yourself",
                 "upright": "Your next spell ignores cover and concealment, you know exact location of all hidden creatures within 60ft",
                 "reversed": "You cannot use your reaction until end of your next turn"
             },
             {
                 "name": "III The Empress",
+                "type": "major",
                 "description": "Motherhood, fertility, nature, divine feminine, sensuality, nurturing, creativity, beauty, abundance\\r\\nRepresents the Earth Mother\\r\\nComplete love, harmony, fertility and luxury\\r\\nBrings abundance and blessings\\r\\nShows deep connection to femininity (fertility, expression, creativity, nurturing)\\r\\nConnect with beauty and bring happiness to your life\\r\\nBe kind to yourself, take care of yourself\\r\\nBirth of new idea, business or project\\r\\nGood fortune\\r\\nBring forth your ideas and devote yourself to accomplishing them\\r\\nYour ideas will be successful and well taken care of",
                 "upright": "You and all allies within 30ft gain temporary hit points equal to your Charisma modifier + proficiency bonus",
                 "reversed": "You take 1d4 damage at the start of each turn until you heal someone or take a short rest "
             },
             {
                 "name": "IV The Emperor",
+                "type": "major",
                 "description": "Stability, structure, protection, authority, control, practicality, focus, discipline, fatherliness\\r\\nStoic ruler figure\\r\\nRams heads - Aries\\r\\nSceptre - reign/right to rule, orb - symbol of kingdom he watches over\\r\\nLong beard - vast experience\\r\\nStrategic thinker\\r\\nPaternal - gives structure, creates rules and systems, imparts knowledge\\r\\nHonour and discipline\\r\\nActs rationally IAW greater good\\r\\nRepresents a chance to grow in terms of your goals\\r\\nSuccessful future as long as you pursue your goals methodically and strategically\\r\\nYou may be put in charge of something important, called to act with wisdom, order and a clear decisive mind",
                 "upright": "You can command one ally within 60ft to move up to their speed and take one action as a reaction",
                 "reversed": "You cannot give direction - no Help action, no Guidance cantrip, no beneficial targeting of allies until end of next turn"
             },
             {
                 "name": "V The Hierophant",
+                "type": "major",
                 "description": "Tradition, social groups, conventionality, conformity, education, knowledge, beliefs\\r\\nReligious figure in a formal environment\\r\\nRight hand raised in blessing, triple cross - pope (the Father, the Son, the Holy Spirit)\\r\\nTwo acolytes - transfer of sacred knowledge\\r\\nMasculine counterpart of the High Priestess - rather than following inner self, follow outer world (already established)\\r\\nEmbrace the conventional, follow well established processes, orthodox approach\\r\\nAdapt to certain beliefs and systems, follow social structures",
                 "upright": "All allies within 30ft gain advantage on saving throws against being charmed or frightened until end of encounter",
                 "reversed": "You can only cast this round with a spell that has only a verbal OR somatic component, not both"
             },
             {
                 "name": "VI The Lovers",
+                "type": "major",
                 "description": "Love, unions, partnerships, relationships, choices, romance, balance, unity\\r\\nHarmony, attractiveness, perfection in a relationship\\r\\nTrust and unity gives confidence and strength, empowering each party\\r\\nChoose what is important in your life and what is not - follows on from Hierophant (develop your own beliefs/values)\\r\\nBe true to yourself to be true and authentic to others",
                 "upright": "Choose one ally - you both gain +2 AC and advantage on saves until end of your next turn",
                 "reversed": "You and one random ally within 30ft both take 1d6 psychic damage"
             },
             {
                 "name": "VII The Chariot",
+                "type": "major",
                 "description": "Success, ambition, determination, willpower, control, self-discipline, focus\\r\\nBlack and white sphinxes - opposing forces that need to be controlled\\r\\nGuide sphinxes to work together to reach a destination\\r\\nOvercoming challenges, gaining victory through control of your surroundings\\r\\nMaintain focus, confidence and determination\\r\\nPursue plans with a structured and ordered approach\\r\\nAggression may be used to help you take charge, but it may need to be reined in.",
                 "upright": "You gain advantage on concentration saves and cannot be moved against your will until end of encounter",
                 "reversed": "You must move in a random direction (roll d8) at the start of your turn until end of your next turn"
             },
             {
                 "name": "VIII Strength",
+                "type": "major",
                 "description": "Courage, bravery, confidence, compassion, self-confidence, inner power\\r\\nWoman gracefully controlling lion, calm and collected\\r\\nMaintain control and discipline in times of great adversity\\r\\nGentle control - love and compassion\\r\\nInner strength and fortitude during times of danger and distress\\r\\nYou are compassionate and always have time for others, even at your own expense\\r\\nYou are patient and likely to accomplish what you put your mind to\\r\\nYou are resilient and fearless\\r\\nYour compassion will be rewarded with stability in your life",
                 "upright": "Your next spell deals maximum damage and you gain temporary hit points equal to damage dealt (will negotiate for half if necessary lol)",
                 "reversed": "You have vulnerability to the next damage you take"
             },
             {
                 "name": "IX The Hermit",
+                "type": "major",
                 "description": "Self-reflection, introspection, contemplation, withdrawal, solitude, search for self\\r\\nWise sage on mountain peak\\r\\nLantern - his wisdom illuminates path\\r\\nCompleted journey, reached pinnacle of spiritual enlightenment\\r\\nSpent time to know himself better, prepared for next phase\\r\\nNow acts as guiding light for others\\r\\nConsult inner wisdom, truth within yourself, listen to inner voice\\r\\nSeparation from others to discover important answers from within",
                 "upright": "Gain advantage on all Wisdom and Intelligence checks until end of encounter, but you cannot target allies with beneficial spells this turn",
                 "reversed": "You are isolated from your allies - cannot benefit from or provide any buff effects until end of your next turn"
             },
             {
                 "name": "X The Wheel of Fortune",
+                "type": "major",
                 "description": "Luck, destiny, karma, turning points, life cycles, inevitable fate, critical moment\\r\\nWeaving of the Fates, web of life\\r\\nReminder that the universe is random\\r\\nDestiny, unexpected income, surprise\\r\\nThings are shaping up for the better\\r\\nEmbrace change and go with the flow\\r\\nIf you're on a low, things will get better\\r\\nMaintain positive and optimistic attitude during change",
                 "upright": "Roll a d20 - 11+ your next spell is cast at 2 levels higher without using higher slot, 10 or lower the DM chooses a random beneficial effect",
                 "reversed": "Roll a d20 - on 10 or lower, you trigger a wild magic surge immediately"
             },
             {
                 "name": "XI Justice",
+                "type": "major",
                 "description": "Justice, fairness, truth, law, cause and effect, accountability\\r\\nBalanced scales - intuition balanced by logic\\r\\nSword - decisive action that Justice brings\\r\\nSquare on crown - clarity of thought\\r\\nReminder that fairness comes from the law of cause and effect\\r\\nYour actions always have consequences\\r\\nSeek justice and truth, and be ready to take responsibility\\r\\nBe fair and understanding",
                 "upright": "Your next spell that requires a save automatically succeeds, but you take half the damage/effect yourself",
                 "reversed": "You must make a Wisdom save (DC 15) or be compelled to attack the nearest creature (friend or foe) on your next turn"
             },
             {
                 "name": "XII The Hanged Man",
+                "type": "major",
                 "description": "Waiting, sacrifice, release, martyrdom, suspension, contemplation, letting go\\r\\nHung upside down - different perspective\\r\\nCalm and serene, chosen his position\\r\\nTree of Life - connection between heaven, earth and underworld\\r\\nPatience, self-sacrifice for greater good/personal growth\\r\\nStep back, take new approach\\r\\nLet go of old mental models and behavioural patterns\\r\\nSacrifice now for future benefit",
                 "upright": "Skip your next turn entirely, but gain 2 actions on the following turn",
                 "reversed": "You're stuck in stasis - lose all movement speed until end of your next turn, but gain +4 AC"
             },
             {
                 "name": "XIII Death",
+                "type": "major",
                 "description": "Endings, beginnings, transition, transformation, change, release\\r\\nDeath comes for all (king, clergy, woman, child)\\r\\nWhite rose - purity, cleansing\\r\\nBoat on river - mythological boats that carry dead to afterlife\\r\\nSun between towers - sun dies each night and is reborn each morning\\r\\nTransition, passage, change\\r\\nEnd of one phase, beginning of another\\r\\nLet go of past to embrace new opportunities",
                 "upright": "Choose one: Kill one enemy with 25 HP or less instantly, OR resurrect one fallen ally with 1 HP",
                 "reversed": "You drop to 1 HP but become immune to all damage until the start of your next turn"
             },
             {
                 "name": "XIV Temperance",
+                "type": "major",
                 "description": "Balance, peace, patience, moderation, calm, tranquillity, harmony\\r\\nAngel with one foot on land, one in water - balance between material and emotional\\r\\nWater flowing between cups - flow and alchemy of life\\r\\nTriangle in square on robe - humanity (triangle) bound by earth and natural law (square)\\r\\nIris flowers - Greek goddess Iris links gods to humanity\\r\\nMiddle path, patience, staying calm\\r\\nBring balance to all aspects of life",
                 "upright": "You and all allies within 30ft heal for 2d4 HP and remove one condition",
                 "reversed": "All your spell damage is halved until end of encounter, but you gain resistance to all damage"
             },
             {
                 "name": "XV The Devil",
+                "type": "major",
                 "description": "Bondage, addiction, sexuality, powerlessness, limitations, shadow self\\r\\nBaphomet - half man, half goat\\r\\nChained humans - but chains are loose, could escape if they wanted\\r\\nInverted pentagram - dark/occult\\r\\nFlames on tails - lust and desire\\r\\nFeel trapped but you hold the keys\\r\\nUnhealthy relationships, addiction, harmful impulses\\r\\nPowerlessness is illusion",
                 "upright": "Your next spell deals double damage but you take 1d6 necrotic damage that can't be reduced",
                 "reversed": "You are charmed by the nearest enemy until end of your next turn"
             },
             {
                 "name": "XVI The Tower",
+                "type": "major",
                 "description": "Disaster, destruction, upheaval, trauma, sudden change, chaos, revelation, awakening\\r\\nTower struck by lightning, people falling\\r\\nBuilt on shaky foundations, false premises\\r\\nLightning - sudden flash of inspiration/insight\\r\\nCrown falling - overthrow of old ways of thinking\\r\\n22 flames - 12 zodiac signs, 10 points of Tree of Life\\r\\nDestruction of old forms necessary for new growth\\r\\nChaos and destruction, but also liberation from false structures",
                 "upright": "All creatures within 20ft (including you) take 3d6 thunder damage and are knocked prone",
                 "reversed": "Destroy all your temporary hit points and ongoing beneficial effects, but deal that amount as damage to nearest enemy"
             },
             {
                 "name": "XVII The Star",
+                "type": "major",
                 "description": "Hope, spirituality, renewal, inspiration, serenity, healing\\r\\nNaked woman - vulnerability and purity\\r\\nPouring water - one on land (conscious), one in water (subconscious)\\r\\nSeven small stars - chakras\\r\\nOne large star - core essences\\r\\nBird on tree - sacred ibis of thought\\r\\nRenewal of spirit, healing\\r\\nTrust in universe\\r\\nCalm after storm",
                 "upright": "cast bardic inspiration as a bonus action",
                 "reversed": "disadvantage on your next attack roll or spell save DC"
             },
             {
                 "name": "XVIII The Moon",
+                "type": "major",
                 "description": "Illusion, intuition, uncertainty, confusion, complexity, secrets, unconscious\\r\\nDog and wolf howling - tame and wild aspects of mind\\r\\nCrayfish from water - early stages of consciousness unfolding\\r\\nPath between towers - journey through unknown\\r\\nMoon controls tides - emotions\\r\\nThings not as they seem\\r\\nReliance on intuition\\r\\nFace illusions, anxieties, fears\\r\\nSubconscious affecting actions",
                 "upright": "All creatures within 60ft must make a Wisdom save or be frightened of you until end of your next turn",
                 "reversed": "You are frightened of all creatures you can see until end of your next turn"
             },
             {
                 "name": "XIX The Sun",
+                "type": "major",
                 "description": "Joy, success, celebration, positivity, vitality, self-confidence, happiness\\r\\nChild on white horse - innocence and purity\\r\\nNaked - nothing to hide\\r\\nSunflowers - four suits, four elements\\r\\nWalled garden - protection but also ability to leave\\r\\nRed banner - celebration of life\\r\\nWarmth, success, radiance\\r\\nThings going your way\\r\\nVitality and confidence",
                 "upright": "All hostile creatures within 30ft take 2d4 radiant damage, all allies gain 1d4 temporary hit points ",
                 "reversed": "You are blinded by false optimism - advantage on your next attack but if you miss, you're stunned until end of next turn"
             },
             {
                 "name": "XX Judgement",
+                "type": "major",
                 "description": "Reflection, reckoning, awakening, renewal, purpose, absolution\\r\\nArchangel Gabriel - God's messenger\\r\\nTrumpet call - announcement of Judgement Day\\r\\nPeople rising from graves - rebirth, absolution\\r\\nMountains - impossibility of avoiding judgement\\r\\nFinal reckoning, time to evaluate\\r\\nAwakening to new purpose\\r\\nAbsolution and new beginning\\r\\nHigher level of consciousness",
                 "upright": "Your next spell ignores resistances and immunities,",
                 "reversed": "You must repeat your last action, or lose your action entirely (stuck in old patterns)"
             },
             {
                 "name": "XXI The World",
+                "type": "major",
                 "description": "Completion, achievement, fulfilment, success, closure, accomplishment\\r\\nDancing figure - both masculine and feminine\\r\\nWrapped in purple cloth - divinity\\r\\nWands - evolution and balance\\r\\nLaurel wreath - success and victory\\r\\nFour figures - four suits, four elements, four evangelists\\r\\nCompletion of cycle\\r\\nAchievement of major goal\\r\\nFulfilment and wholeness\\r\\nCelebration of journey",
                 "upright": "You gain an additional action for 1 minute (this is the ultimate achievement/completion effect!)",
                 "reversed": "You lose your turn completely - no action, bonus action, movement, or reaction until the start of your next turn"
             }
         ];
 
+        // Minor Arcana Data
+        const minorArcana = {
+            cups: [
+                {
+                    "name": "Ace of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "Gain 1d4 temporary hit points and heal 1 hit point.",
+                    "reversed": "Take 1d4 psychic damage."
+                },
+                {
+                    "name": "Two of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "You and one ally within 30 feet each gain +1 to AC until the end of your next turn.",
+                    "reversed": "The next attack against you has advantage."
+                },
+                {
+                    "name": "Three of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "You and up to two allies within 20 feet each heal 1 hit point.",
+                    "reversed": "You must make a DC 10 Constitution saving throw or be poisoned until the end of your next turn."
+                },
+                {
+                    "name": "Four of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "You gain advantage on saves against being charmed until the end of your next turn.",
+                    "reversed": "You cannot take reactions until the end of your next turn."
+                },
+                {
+                    "name": "Five of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "Remove one of these conditions if affecting you: frightened or charmed.",
+                    "reversed": "Take 1d4 psychic damage and your speed is reduced by 10 feet until the end of your next turn."
+                },
+                {
+                    "name": "Six of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "Heal 1d4 hit points.",
+                    "reversed": "You must make a DC 10 Wisdom save or be incapacitated until the end of your next turn."
+                },
+                {
+                    "name": "Seven of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "The next attack against you that would have advantage doesn't.",
+                    "reversed": "You have disadvantage on your next attack roll."
+                },
+                {
+                    "name": "Eight of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "You can Disengage as a bonus action this turn.",
+                    "reversed": "Your speed is reduced by 10 feet until the end of your next turn."
+                },
+                {
+                    "name": "Nine of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "Heal 1d4+1 hit points.",
+                    "reversed": "You cannot regain hit points until the end of your next turn."
+                },
+                {
+                    "name": "Ten of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "All allies within 20 feet gain 1d4 temporary hit points until the end of your next turn.",
+                    "reversed": "You have disadvantage on Constitution saves until the end of your next turn."
+                },
+                {
+                    "name": "Page of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "Your next spell that requires a spell attack roll gains +2 to hit.",
+                    "reversed": "You cannot speak until the end of your next turn (can still cast spells with somatic components only)."
+                },
+                {
+                    "name": "Knight of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "The next healing you receive is increased by 1d4.",
+                    "reversed": "Your speed is reduced to 15 feet until the end of your next turn."
+                },
+                {
+                    "name": "Queen of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "One ally within 30 feet can immediately make a saving throw to end one condition.",
+                    "reversed": "Take 1d4 psychic damage."
+                },
+                {
+                    "name": "King of Cups",
+                    "type": "minor",
+                    "suit": "Cups",
+                    "upright": "You have advantage on Wisdom saving throws until the end of your next turn.",
+                    "reversed": "You cannot take bonus actions until the end of your next turn."
+                }
+            ],
+            pentacles: [
+                {
+                    "name": "Ace of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "Your next weapon attack deals +1d4 damage.",
+                    "reversed": "Your next attack has -2 to hit."
+                },
+                {
+                    "name": "Two of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "You automatically succeed on concentration saves until the end of your next turn.",
+                    "reversed": "You must make a DC 10 Dexterity save or drop what you're holding."
+                },
+                {
+                    "name": "Three of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "Your next attack roll gains +3 to hit.",
+                    "reversed": "Your next attack has disadvantage."
+                },
+                {
+                    "name": "Four of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "Your AC increases by 1 until the end of your next turn.",
+                    "reversed": "You are restrained until the end of your current turn."
+                },
+                {
+                    "name": "Five of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "You gain resistance to one damage type of your choice until the end of your next turn.",
+                    "reversed": "Take 1d4 cold damage."
+                },
+                {
+                    "name": "Six of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "Your next attack that hits heals you for 1 hit point.",
+                    "reversed": "The next damage you take is increased by 1d4."
+                },
+                {
+                    "name": "Seven of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "You immediately regain one hit die.",
+                    "reversed": "You cannot regain hit points until the end of your next turn."
+                },
+                {
+                    "name": "Eight of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "Your next damage roll deals maximum damage on one die (your choice).",
+                    "reversed": "Your attacks deal -1 damage until the end of your next turn (minimum 1)."
+                },
+                {
+                    "name": "Nine of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "Gain 1d4+1 temporary hit points until the end of your next turn.",
+                    "reversed": "Your AC is reduced by 1 until the end of your next turn."
+                },
+                {
+                    "name": "Ten of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "You and one ally within 30 feet each gain +1 to all saves until the end of your next turn.",
+                    "reversed": "You are stunned until the end of your current turn."
+                },
+                {
+                    "name": "Page of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "Your next attack deals +1 damage and you gain 1 temporary hit point.",
+                    "reversed": "You have -2 to Initiative (if combat hasn't started) or -2 to your next attack roll."
+                },
+                {
+                    "name": "Knight of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "You gain +1 AC and resistance to bludgeoning damage until the end of your next turn.",
+                    "reversed": "Your speed becomes 10 feet until the end of your next turn."
+                },
+                {
+                    "name": "Queen of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "You or one ally within 30 feet heals 1d4 hit points.",
+                    "reversed": "You must make a DC 11 Constitution save or be poisoned until the end of your next turn."
+                },
+                {
+                    "name": "King of Pentacles",
+                    "type": "minor",
+                    "suit": "Pentacles",
+                    "upright": "You gain 5 temporary hit points until the end of your next turn.",
+                    "reversed": "You cannot benefit from magic items until the end of your next turn."
+                }
+            ],
+            swords: [
+                {
+                    "name": "Ace of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "Your next attack this turn scores a critical hit on a 19 or 20.",
+                    "reversed": "Your next attack automatically misses."
+                },
+                {
+                    "name": "Two of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "You gain +2 AC against the next attack made against you.",
+                    "reversed": "You are blinded until the end of your current turn."
+                },
+                {
+                    "name": "Three of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "Your next attack deals +1d4 damage.",
+                    "reversed": "Take 1d4 piercing damage."
+                },
+                {
+                    "name": "Four of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "You regain 1d4 hit points.",
+                    "reversed": "You cannot take actions until the end of your next turn (can still move and take bonus actions)."
+                },
+                {
+                    "name": "Five of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "Your next attack has advantage.",
+                    "reversed": "All allies within 15 feet have -1 to their next attack roll."
+                },
+                {
+                    "name": "Six of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "Your movement doesn't provoke opportunity attacks this turn.",
+                    "reversed": "Your movement speed becomes 0 until the end of your current turn."
+                },
+                {
+                    "name": "Seven of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "You become invisible until the end of your current turn or until you attack.",
+                    "reversed": "The next attack against you has advantage."
+                },
+                {
+                    "name": "Eight of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "You can escape from any non-magical restraints as a free action.",
+                    "reversed": "You are restrained until the end of your next turn."
+                },
+                {
+                    "name": "Nine of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "You are immune to being frightened until the end of your next turn.",
+                    "reversed": "You must make a DC 12 Wisdom save or be frightened until the end of your next turn."
+                },
+                {
+                    "name": "Ten of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "If you would be reduced to 0 hit points this round, you drop to 1 instead (once).",
+                    "reversed": "The next attack against you deals +1d4 damage."
+                },
+                {
+                    "name": "Page of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "You gain +3 to Initiative (if combat hasn't started) or your next attack gains +2 to hit.",
+                    "reversed": "You have disadvantage on your next attack."
+                },
+                {
+                    "name": "Knight of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "Your speed increases by 15 feet this turn and you can Dash as a bonus action.",
+                    "reversed": "On your next turn, you must move at least 10 feet toward the nearest enemy if able."
+                },
+                {
+                    "name": "Queen of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "Your next attack ignores resistance to its damage type.",
+                    "reversed": "Take 1d4 slashing damage and you cannot speak until the end of your next turn."
+                },
+                {
+                    "name": "King of Swords",
+                    "type": "minor",
+                    "suit": "Swords",
+                    "upright": "You have advantage on Intelligence and Wisdom saves until the end of your next turn.",
+                    "reversed": "You cannot cast spells until the end of your next turn."
+                }
+            ],
+            wands: [
+                {
+                    "name": "Ace of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "Your next damage roll deals +1d4 fire damage.",
+                    "reversed": "Take 1 fire damage and you have disadvantage on your next Dexterity save."
+                },
+                {
+                    "name": "Two of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "You gain +2 to your next saving throw this round.",
+                    "reversed": "You have -2 to your next saving throw this round."
+                },
+                {
+                    "name": "Three of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "You can see invisible creatures within 15 feet until the end of your next turn.",
+                    "reversed": "Your attack range is reduced by half until the end of your next turn."
+                },
+                {
+                    "name": "Four of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "You and one ally within 20 feet each gain 1d4 temporary hit points until the end of your next turn.",
+                    "reversed": "You must make a DC 10 Constitution save or fall prone."
+                },
+                {
+                    "name": "Five of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "You gain +2 to attack rolls but -1 to AC until the end of your next turn.",
+                    "reversed": "Your attacks have disadvantage until the end of your next turn."
+                },
+                {
+                    "name": "Six of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "If your next attack hits, you gain 1d4 temporary hit points.",
+                    "reversed": "The next saving throw you make has disadvantage."
+                },
+                {
+                    "name": "Seven of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "You gain +2 AC against attacks of opportunity this turn.",
+                    "reversed": "The next attack against you has advantage."
+                },
+                {
+                    "name": "Eight of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "Your next ranged attack gains +2 to hit and +10 feet range.",
+                    "reversed": "You are stunned until the end of your current turn."
+                },
+                {
+                    "name": "Nine of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "You gain resistance to the next damage you take (one instance only).",
+                    "reversed": "You gain one level of exhaustion."
+                },
+                {
+                    "name": "Ten of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "You have advantage on Strength saves until the end of your next turn.",
+                    "reversed": "You have disadvantage on Strength saves and -10 feet movement until the end of your next turn."
+                },
+                {
+                    "name": "Page of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "Your next spell attack or cantrip gains +2 to hit or save DC.",
+                    "reversed": "Take 1d4 fire damage."
+                },
+                {
+                    "name": "Knight of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "Your next attack that deals fire damage deals +1d6 fire damage instead.",
+                    "reversed": "You must move at least 15 feet toward the nearest enemy on your next turn if able."
+                },
+                {
+                    "name": "Queen of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "You can make one additional attack as a bonus action this turn (melee or ranged, no damage modifier).",
+                    "reversed": "You must use your bonus action to taunt an enemy (no mechanical effect)."
+                },
+                {
+                    "name": "King of Wands",
+                    "type": "minor",
+                    "suit": "Wands",
+                    "upright": "Your next fire damage ignores resistance and treats immunity as resistance.",
+                    "reversed": "Take 1d4 fire damage and you have vulnerability to fire damage until the end of your next turn."
+                }
+            ]
+        };
+
+        // Combine all cards into one deck
+        const allCards = [
+            ...majorArcana,
+            ...minorArcana.cups,
+            ...minorArcana.pentacles,
+            ...minorArcana.swords,
+            ...minorArcana.wands
+        ];
+
         let currentCard = null;
         let currentOrientation = null;
 
-        // Populate card selector
+        // Populate card selector with organized groups
         const cardSelector = document.getElementById('cardSelector');
-        cardsData.forEach(card => {
+        
+        // Major Arcana group
+        const majorGroup = document.createElement('optgroup');
+        majorGroup.label = '✨ Major Arcana';
+        majorArcana.forEach(card => {
             const option = document.createElement('option');
             option.value = card.name;
             option.textContent = card.name;
-            cardSelector.appendChild(option);
+            majorGroup.appendChild(option);
         });
+        cardSelector.appendChild(majorGroup);
+
+        // Minor Arcana groups
+        const suitInfo = {
+            cups: { label: '💧 Cups (Water/Emotions)', cards: minorArcana.cups },
+            pentacles: { label: '🪙 Pentacles (Earth/Material)', cards: minorArcana.pentacles },
+            swords: { label: '⚔️ Swords (Air/Intellect)', cards: minorArcana.swords },
+            wands: { label: '🔥 Wands (Fire/Action)', cards: minorArcana.wands }
+        };
+
+        Object.keys(suitInfo).forEach(suit => {
+            const group = document.createElement('optgroup');
+            group.label = suitInfo[suit].label;
+            suitInfo[suit].cards.forEach(card => {
+                const option = document.createElement('option');
+                option.value = card.name;
+                option.textContent = card.name;
+                group.appendChild(option);
+            });
+            cardSelector.appendChild(group);
+        });
+
+        // Function to get suit icon
+        function getSuitIcon(suit) {
+            const icons = {
+                'Cups': '💧',
+                'Pentacles': '🪙',
+                'Swords': '⚔️',
+                'Wands': '🔥'
+            };
+            return icons[suit] || '';
+        }
 
         // Function to display card
         function displayCard() {
@@ -415,14 +925,22 @@
             const cardDisplay = document.getElementById('cardDisplay');
             const effect = currentOrientation === 'upright' ? currentCard.upright : currentCard.reversed;
             const orientationClass = currentOrientation === 'upright' ? 'orientation-upright' : 'orientation-reversed';
+            const typeClass = currentCard.type === 'major' ? 'type-major' : 'type-minor';
             
-            // Clean up description for display
-            const cleanDescription = currentCard.description.replace(/\\r\\n/g, '<br>').replace(/\\n/g, '<br>');
+            // Clean up description for display (only major arcana has descriptions)
+            const cleanDescription = currentCard.description ? 
+                currentCard.description.replace(/\\r\\n/g, '<br>').replace(/\\n/g, '<br>') : '';
+            
+            // Add suit icon for minor arcana
+            const suitIcon = currentCard.suit ? `<span class="suit-icon">${getSuitIcon(currentCard.suit)}</span>` : '';
             
             cardDisplay.innerHTML = `
-                <div class="card-name">${currentCard.name}</div>
-                <div class="card-orientation ${orientationClass}">${currentOrientation}</div>
-                ${currentCard.description ? `<div class="card-description">${cleanDescription}</div>` : ''}
+                <div class="card-name">${currentCard.name}${suitIcon}</div>
+                <div>
+                    <span class="card-type ${typeClass}">${currentCard.type === 'major' ? 'Major Arcana' : currentCard.suit}</span>
+                    <span class="card-orientation ${orientationClass}">${currentOrientation}</span>
+                </div>
+                ${cleanDescription ? `<div class="card-description">${cleanDescription}</div>` : ''}
                 <div class="card-effect">
                     <div class="effect-label">Effect (${currentOrientation}):</div>
                     <div class="effect-text">${effect}</div>
@@ -434,7 +952,7 @@
         cardSelector.addEventListener('change', (e) => {
             const selectedCardName = e.target.value;
             if (selectedCardName) {
-                currentCard = cardsData.find(card => card.name === selectedCardName);
+                currentCard = allCards.find(card => card.name === selectedCardName);
                 if (currentOrientation) {
                     displayCard();
                 }
@@ -465,11 +983,11 @@
             displayCard();
         });
 
-        // Random button
+        // Random button - draws from ALL cards
         document.getElementById('randomBtn').addEventListener('click', () => {
-            // Select random card
-            const randomIndex = Math.floor(Math.random() * cardsData.length);
-            currentCard = cardsData[randomIndex];
+            // Select random card from entire deck
+            const randomIndex = Math.floor(Math.random() * allCards.length);
+            currentCard = allCards[randomIndex];
             
             // Select random orientation
             currentOrientation = Math.random() < 0.5 ? 'upright' : 'reversed';
